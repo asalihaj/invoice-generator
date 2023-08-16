@@ -9,6 +9,8 @@ public class Product {
     private BigDecimal discount;
     private BigDecimal vat;
 
+    public Product() {}
+
     public Product(String name, BigDecimal price, BigDecimal vat) {
         this(name, price, new BigDecimal(0), vat);
     }
@@ -20,10 +22,14 @@ public class Product {
         this.vat = vat;
     }
 
-    public BigDecimal getPriceAfterDiscountAndVAT() {
+    public BigDecimal getTotalPrice() {
         BigDecimal discountedPrice = price.subtract(discount);
         BigDecimal vatAmount = discountedPrice.multiply(vat.divide(new BigDecimal(100), RoundingMode.DOWN));
         return discountedPrice.add(vatAmount);
+    }
+
+    public BigDecimal getDiscountPrice() {
+        return price.subtract(discount);
     }
 
     public String getName() {
