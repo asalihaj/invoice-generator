@@ -1,0 +1,27 @@
+package com.techframe.invoicegenerator.controller;
+
+import com.techframe.invoicegenerator.entity.Invoice;
+import com.techframe.invoicegenerator.entity.InvoiceItem;
+import com.techframe.invoicegenerator.service.OrderService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/v1/orders")
+public class OrderController {
+    private final OrderService orderService;
+
+    public OrderController(OrderService orderService) {
+        this.orderService = orderService;
+    }
+
+    @PostMapping
+    public ResponseEntity<List<Invoice>> createOrder(@RequestBody List<InvoiceItem> items) {
+        List<Invoice> invoiceList = orderService.createOrder(items);
+        return new ResponseEntity<>(invoiceList, HttpStatus.OK);
+    }
+}
