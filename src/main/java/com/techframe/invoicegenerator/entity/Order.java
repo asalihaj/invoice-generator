@@ -14,7 +14,7 @@ public class Order {
     private BigDecimal total;
 
     private static final String PREFIX = "ORD";
-    private static final int ID_LENGTH = 5;
+    private static final int ID_LENGTH = 2;
     private static int counter = 1;
 
     public Order() {

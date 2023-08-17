@@ -31,7 +31,7 @@ public class InvoiceService {
     }
 
     private boolean addItemsToInvoice(InvoiceItem item, Invoice invoice) {
-        boolean isSPI = item.getProduct().getTotalPrice().compareTo(new BigDecimal(500)) > 0;
+        boolean isSPI = item.getProduct().getTotalPrice().compareTo(Invoice.MAX_AMOUNT) > 0;
         if (isSPI) {
             Invoice inv = new Invoice();
             boolean isAdded = inv.addSingleProduct(item);
@@ -43,7 +43,7 @@ public class InvoiceService {
         int maxQuantity = calculateMaxQuantity(
                 item.getProduct().getTotalPrice(),
                 item.getQuantity(),
-                new BigDecimal(500).subtract(invoice.getTotalAmount())
+                Invoice.MAX_AMOUNT.subtract(invoice.getTotalAmount())
         );
         if (maxQuantity == 0) {
             return false;

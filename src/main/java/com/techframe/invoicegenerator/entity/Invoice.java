@@ -13,8 +13,9 @@ public class Invoice {
     private BigDecimal totalAmount;
     private BigDecimal vat;
 
+    public static final BigDecimal MAX_AMOUNT = new BigDecimal(500);
     private static final String PREFIX = "INV";
-    private static final int ID_LENGTH = 5;
+    private static final int ID_LENGTH = 3;
     private static int counter = 1;
 
     public Invoice() {
@@ -64,7 +65,7 @@ public class Invoice {
     }
 
     public boolean canAddProduct(InvoiceItem item) {
-        if (totalAmount.compareTo(new BigDecimal(500)) > 0) return false;
+        if (totalAmount.compareTo(MAX_AMOUNT) > 0) return false;
 
         int index = products.indexOf(item);
         if (index != -1) {
@@ -78,7 +79,7 @@ public class Invoice {
         BigDecimal price = item.getProduct().getTotalPrice().multiply(new BigDecimal(item.getQuantity()));
 
         BigDecimal totalPrice = totalAmount.add(price);
-        return totalPrice.compareTo(new BigDecimal(500)) <= 0;
+        return totalPrice.compareTo(MAX_AMOUNT) <= 0;
     }
 
     public String getId() {
