@@ -1,5 +1,7 @@
 package com.techframe.invoicegenerator.entity;
 
+import com.techframe.invoicegenerator.util.IdGenerator;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +22,7 @@ public class Order {
     }
 
     public Order(List<Invoice> invoices) {
-        this.id = generateId();
+        this.id = IdGenerator.generateId(PREFIX, ID_LENGTH, counter++);
         this.invoices = invoices;
         total = calculateTotal();
         subTotal = calculateSubTotal();
@@ -83,10 +85,5 @@ public class Order {
         }
 
         return subTotal;
-    }
-
-    private String generateId() {
-        String idNumber = String.format("%0" + (ID_LENGTH - PREFIX.length()) + "d", counter++);
-        return PREFIX + idNumber;
     }
 }
