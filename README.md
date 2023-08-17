@@ -1,10 +1,13 @@
 ## Endpoints
 ### Create Order
-For further reference, please consider the following sections:
+Receives a collection of products along with their corresponding 
+quantities and generates an order that includes a series of 
+invoices, each containing details about the products and their 
+quantities.
 
 * Endpoint: /api/v1/orders
 * Method: POST
-* Request Body (example):
+* Request Body ([example](src/main/resources/data.json))
 ```json
 [
   {
