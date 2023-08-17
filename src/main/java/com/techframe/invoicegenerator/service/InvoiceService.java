@@ -32,9 +32,8 @@ public class InvoiceService {
 
     private boolean addItemsToInvoice(InvoiceItem item, Invoice invoice) {
         boolean isSPI = item.getProduct().getTotalPrice().compareTo(Invoice.MAX_AMOUNT) > 0;
-        if (isSPI) {
-            Invoice inv = new Invoice();
-            boolean isAdded = inv.addSingleProduct(item);
+        if (isSPI && invoice.getProducts().size() == 0) {
+            boolean isAdded = invoice.addSingleProduct(new InvoiceItem(item.getProduct(), 1));
             item.setQuantity(item.getQuantity() - 1);
 
             return isAdded;
