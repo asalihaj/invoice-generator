@@ -13,67 +13,76 @@ import java.util.*;
 @Service
 public class OrderService {
 
-    //TODO: Refactor this method
     public Order createOrder(List<InvoiceItem> items) {
         List<Invoice> invoiceList = new ArrayList<>();
-        items.sort((item1, item2) -> {
-            BigDecimal price1 = item1.getProduct().getTotalPrice();
-            BigDecimal price2 = item2.getProduct().getTotalPrice();
-            return price1.compareTo(price2);
-        });
+        items.sort(Comparator.comparing(item -> item.getProduct().getTotalPrice()));
 
         int totalQuantity = cumulativeQuantity(items);
         int unchangedIterations = 0;
+        int maxTries = 5;
 
         while (totalQuantity > 0) {
-            Invoice invoice = new Invoice();
-            boolean quantityChanged = false;
+            Invoice invoice = createInvoice(items);
+            int addedQuantity = invoice.getProducts().stream().mapToInt(InvoiceItem::getQuantity).sum();
+            totalQuantity = cumulativeQuantity(items);
 
-            for (InvoiceItem item : items) {
-                int quantity = item.getQuantity();
-                if (quantity == 0) {
-                    continue;
-                }
-
-                boolean isSPI = item.getProduct().getTotalPrice().compareTo(new BigDecimal(500)) > 0;
-                if (isSPI) {
-                    Invoice inv = new Invoice();
-                    boolean isAdded = inv.addSingleProduct(item);
-                    if (isAdded) {
-                        invoiceList.add(inv);
-                        item.setQuantity(quantity - 1);
-                        totalQuantity--;
-                        quantityChanged = true;
-                        continue;
-                    }
-                }
-
-                int maxQuantity = calculateMaxQuantity(
-                        item.getProduct().getTotalPrice(),
-                        quantity,
-                        new BigDecimal(500).subtract(invoice.getTotalAmount())
-                );
-                if (maxQuantity == 0) break;
-                boolean isAdded = invoice.addProduct(new InvoiceItem(item.getProduct(), maxQuantity));
-                if (isAdded) {
-                    totalQuantity -= maxQuantity;
-                    item.setQuantity(quantity - maxQuantity);
-                    quantityChanged = true;
-                }
-            }
-
-            if (quantityChanged) {
+            if (addedQuantity > 0) {
                 unchangedIterations = 0;
             } else {
                 unchangedIterations++;
-                if (unchangedIterations > 5) {
+                if (unchangedIterations >= maxTries) {
                     throw new RuntimeException("Error while creating order");
                 }
             }
+
             invoiceList.add(invoice);
         }
 
         return new Order(invoiceList);
+    }
+
+    private Invoice createInvoice(List<InvoiceItem> items) {
+        Invoice invoice = new Invoice();
+
+        for (InvoiceItem item : items) {
+            int quantity = item.getQuantity();
+
+            if (quantity == 0) {
+                continue;
+            }
+
+            boolean isAdded = addItemsToInvoice(item, invoice);
+            if (!isAdded) {
+                break;
+            }
+        }
+
+        return invoice;
+    }
+
+    private boolean addItemsToInvoice(InvoiceItem item, Invoice invoice) {
+        boolean isSPI = item.getProduct().getTotalPrice().compareTo(new BigDecimal(500)) > 0;
+        if (isSPI) {
+            Invoice inv = new Invoice();
+            boolean isAdded = inv.addSingleProduct(item);
+            item.setQuantity(item.getQuantity() - 1);
+
+            return isAdded;
+        }
+
+        int maxQuantity = calculateMaxQuantity(
+                item.getProduct().getTotalPrice(),
+                item.getQuantity(),
+                new BigDecimal(500).subtract(invoice.getTotalAmount())
+        );
+        if (maxQuantity == 0) {
+            return false;
+        }
+
+        boolean isAdded = invoice.addProduct(new InvoiceItem(item.getProduct(), maxQuantity));
+        item.setQuantity(item.getQuantity() - maxQuantity);
+
+        return isAdded;
     }
 
     private int cumulativeQuantity(List<InvoiceItem> items) {
