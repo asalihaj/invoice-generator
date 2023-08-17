@@ -13,7 +13,7 @@ public class InvoiceItem {
         this.product = product;
         this.quantity = quantity;
         total = product.getDiscountPrice().multiply(new BigDecimal(quantity));
-        vat = total.multiply(product.getVat().divide(new BigDecimal(100), RoundingMode.DOWN));
+        vat = total.multiply(product.getVat().divide(new BigDecimal(100), RoundingMode.HALF_DOWN));
     }
 
     public Product getProduct() {
