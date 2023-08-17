@@ -14,6 +14,7 @@ public class Invoice {
     private BigDecimal vat;
 
     public static final BigDecimal MAX_AMOUNT = new BigDecimal(500);
+    public static final Integer PRODUCT_LIMIT = 50;
     private static final String PREFIX = "INV";
     private static final int ID_LENGTH = 3;
     private static int counter = 1;
@@ -74,7 +75,7 @@ public class Invoice {
             if (currentQuantity == null) currentQuantity = 0;
 
             int totalQuantity = currentQuantity + item.getQuantity();
-            if (totalQuantity > 50) return false;
+            if (totalQuantity > PRODUCT_LIMIT) return false;
         }
         BigDecimal price = item.getProduct().getTotalPrice().multiply(new BigDecimal(item.getQuantity()));
 

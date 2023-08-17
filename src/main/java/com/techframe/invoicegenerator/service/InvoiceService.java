@@ -56,7 +56,10 @@ public class InvoiceService {
     }
 
     private int calculateMaxQuantity(BigDecimal productPrice, int quantity, BigDecimal limit) {
-        int maxQuantityByProducts = Math.min(50, limit.divide(productPrice, RoundingMode.HALF_DOWN).intValue());
+        int maxQuantityByProducts = Math.min(
+                Invoice.PRODUCT_LIMIT,
+                limit.divide(productPrice, RoundingMode.HALF_DOWN).intValue()
+        );
         return Math.min(maxQuantityByProducts, quantity);
     }
 }
