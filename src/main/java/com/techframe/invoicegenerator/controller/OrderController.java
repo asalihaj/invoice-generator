@@ -1,9 +1,8 @@
 package com.techframe.invoicegenerator.controller;
 
-import com.techframe.invoicegenerator.entity.Invoice;
 import com.techframe.invoicegenerator.entity.InvoiceItem;
+import com.techframe.invoicegenerator.entity.Order;
 import com.techframe.invoicegenerator.service.OrderService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,8 +19,8 @@ public class OrderController {
     }
 
     @PostMapping
-    public ResponseEntity<List<Invoice>> createOrder(@RequestBody List<InvoiceItem> items) {
-        List<Invoice> invoiceList = orderService.createOrder(items);
-        return new ResponseEntity<>(invoiceList, HttpStatus.OK);
+    public ResponseEntity<Order> createOrder(@RequestBody List<InvoiceItem> items) {
+        Order order = orderService.createOrder(items);
+        return new ResponseEntity<>(order, HttpStatus.OK);
     }
 }
