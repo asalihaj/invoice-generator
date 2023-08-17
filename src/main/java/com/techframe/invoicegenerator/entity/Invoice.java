@@ -1,12 +1,12 @@
 package com.techframe.invoicegenerator.entity;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Invoice {
     private String id;
-    private Map<Product, Integer> products;
+    private List<InvoiceItem> products;
     private BigDecimal subTotal;
     private BigDecimal totalAmount;
     private BigDecimal vat;
@@ -16,23 +16,26 @@ public class Invoice {
     private static int counter = 1;
 
     public Invoice() {
-        this(new HashMap<>(), new BigDecimal(0), new BigDecimal(0));
+        this(new ArrayList<>(), new BigDecimal(0), new BigDecimal(0));
     }
 
-    public Invoice(Map<Product, Integer> products, BigDecimal subTotal, BigDecimal totalAmount) {
+    public Invoice(List<InvoiceItem> products, BigDecimal subTotal, BigDecimal totalAmount) {
         this.id = generateId();
         this.products = products;
         this.subTotal = subTotal;
         this.totalAmount = totalAmount;
     }
 
-    public boolean addProduct(Product product, int quantity) {
-        if (canAddProduct(product, quantity)) {
-            Integer currentQuantity = products.get(product);
-            if (currentQuantity == null) {
-                products.put(product, quantity);
+    public boolean addProduct(InvoiceItem item) {
+        if (canAddProduct(item)) {
+            int index = products.indexOf(item);
+            if (index == -1) {
+                products.add(item);
             } else {
-                products.replace(product, quantity, quantity + currentQuantity);
+                InvoiceItem existingItem = products.get(index);
+                Integer totalQuantity = item.getQuantity() + existingItem.getQuantity();
+                item.setQuantity(totalQuantity);
+                products.set(index, item);
             }
             totalAmount = calculateTotalAmount();
             subTotal = calculateSubTotal();
@@ -44,26 +47,33 @@ public class Invoice {
         return false;
     }
 
-    public boolean addSingleProduct(Product product) {
+    public boolean addSingleProduct(InvoiceItem item) {
         if (products.size() > 0) {
             return false;
         }
+        item.setQuantity(1);
 
-        products.put(product, 1);
+        products.add(item);
+        totalAmount = calculateTotalAmount();
+        subTotal = calculateSubTotal();
+        vat = totalAmount.subtract(subTotal);
+
         return true;
     }
 
-    public boolean canAddProduct(Product product, int quantity) {
+    public boolean canAddProduct(InvoiceItem item) {
         if (totalAmount.compareTo(new BigDecimal(500)) > 0) return false;
 
-        BigDecimal price = product.getTotalPrice().multiply(new BigDecimal(quantity));
-        if (products.get(product) != null) {
-            Integer currentQuantity = products.get(product);
+        int index = products.indexOf(item);
+        if (index != -1) {
+            InvoiceItem currentItem = products.get(index);
+            Integer currentQuantity = currentItem.getQuantity();
             if (currentQuantity == null) currentQuantity = 0;
 
-            int totalQuantity = currentQuantity + quantity;
+            int totalQuantity = currentQuantity + item.getQuantity();
             if (totalQuantity > 50) return false;
         }
+        BigDecimal price = item.getProduct().getTotalPrice().multiply(new BigDecimal(item.getQuantity()));
 
         BigDecimal totalPrice = totalAmount.add(price);
         return totalPrice.compareTo(new BigDecimal(500)) <= 0;
@@ -77,19 +87,19 @@ public class Invoice {
         this.id = id;
     }
 
-    public Map<Product, Integer> getProducts() {
+    public List<InvoiceItem> getProducts() {
         return products;
     }
 
-    public void setProducts(Map<Product, Integer> products) {
+    public void setProducts(List<InvoiceItem> products) {
         this.products = products;
     }
 
     public BigDecimal calculateTotalAmount() {
         BigDecimal total = new BigDecimal(0);
-        for (Map.Entry<Product, Integer> entry : products.entrySet()) {
-            BigDecimal productPrice = entry.getKey().getTotalPrice();
-            int quantity = entry.getValue();
+        for (InvoiceItem item : products) {
+            BigDecimal productPrice = item.getProduct().getTotalPrice();
+            int quantity = item.getQuantity();
 
             total = total.add(productPrice.multiply(new BigDecimal(quantity)));
         }
@@ -98,9 +108,9 @@ public class Invoice {
 
     public BigDecimal calculateSubTotal() {
         BigDecimal subTotal = new BigDecimal(0);
-        for (Map.Entry<Product, Integer> entry : products.entrySet()) {
-            BigDecimal productPrice = entry.getKey().getDiscountPrice();
-            int quantity = entry.getValue();
+        for (InvoiceItem item : products) {
+            BigDecimal productPrice = item.getProduct().getDiscountPrice();
+            int quantity = item.getQuantity();
 
             subTotal = subTotal.add(productPrice.multiply(new BigDecimal(quantity)));
         }

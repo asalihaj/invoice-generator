@@ -2,6 +2,7 @@ package com.techframe.invoicegenerator.service;
 
 import com.techframe.invoicegenerator.entity.Invoice;
 import com.techframe.invoicegenerator.entity.InvoiceItem;
+import com.techframe.invoicegenerator.entity.Order;
 import com.techframe.invoicegenerator.entity.Product;
 import org.springframework.stereotype.Service;
 
@@ -13,52 +14,67 @@ import java.util.*;
 public class OrderService {
 
     //TODO: Refactor this method
-    public List<Invoice> createOrder(List<InvoiceItem> items) {
+    public Order createOrder(List<InvoiceItem> items) {
         List<Invoice> invoiceList = new ArrayList<>();
         items.sort((item1, item2) -> {
             BigDecimal price1 = item1.getProduct().getTotalPrice();
             BigDecimal price2 = item2.getProduct().getTotalPrice();
-            return price2.compareTo(price1);
+            return price1.compareTo(price2);
         });
 
         int totalQuantity = cumulativeQuantity(items);
+        int unchangedIterations = 0;
 
         while (totalQuantity > 0) {
             Invoice invoice = new Invoice();
+            boolean quantityChanged = false;
 
-            for (int i = 0; i < items.size(); i++) {
-                int quantity = items.get(i).getQuantity();
+            for (InvoiceItem item : items) {
+                int quantity = item.getQuantity();
                 if (quantity == 0) {
                     continue;
                 }
 
-                Product product = items.get(i).getProduct();
-                boolean isSPI = items.get(i).getProduct().getTotalPrice().compareTo(new BigDecimal(500)) > 0;
+                boolean isSPI = item.getProduct().getTotalPrice().compareTo(new BigDecimal(500)) > 0;
                 if (isSPI) {
                     Invoice inv = new Invoice();
-                    inv.addSingleProduct(product);
-                    invoiceList.add(inv);
-                    continue;
+                    boolean isAdded = inv.addSingleProduct(item);
+                    if (isAdded) {
+                        invoiceList.add(inv);
+                        item.setQuantity(quantity - 1);
+                        totalQuantity--;
+                        quantityChanged = true;
+                        continue;
+                    }
                 }
 
                 int maxQuantity = calculateMaxQuantity(
-                        product.getTotalPrice(),
+                        item.getProduct().getTotalPrice(),
                         quantity,
                         new BigDecimal(500).subtract(invoice.getTotalAmount())
                 );
-                boolean isAdded = invoice.addProduct(items.get(i).getProduct(), maxQuantity);
+                if (maxQuantity == 0) break;
+                boolean isAdded = invoice.addProduct(new InvoiceItem(item.getProduct(), maxQuantity));
                 if (isAdded) {
                     totalQuantity -= maxQuantity;
-                    items.get(i).setQuantity(quantity - maxQuantity);
+                    item.setQuantity(quantity - maxQuantity);
+                    quantityChanged = true;
+                }
+            }
+
+            if (quantityChanged) {
+                unchangedIterations = 0;
+            } else {
+                unchangedIterations++;
+                if (unchangedIterations > 5) {
+                    throw new RuntimeException("Error while creating order");
                 }
             }
             invoiceList.add(invoice);
         }
 
-        return invoiceList;
+        return new Order(invoiceList);
     }
-
-
 
     private int cumulativeQuantity(List<InvoiceItem> items) {
         return items.stream().map(InvoiceItem::getQuantity).reduce(0, Integer::sum);
