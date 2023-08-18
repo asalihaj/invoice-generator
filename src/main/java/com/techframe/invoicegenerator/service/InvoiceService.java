@@ -16,15 +16,11 @@ public class InvoiceService {
 
         for (InvoiceItem item : items) {
             int quantity = item.getQuantity();
-
             if (quantity == 0) {
                 continue;
             }
 
-            boolean isAdded = addItemsToInvoice(item, invoice);
-            if (!isAdded) {
-                break;
-            }
+            addItemsToInvoice(item, invoice);
         }
 
         return invoice;
@@ -32,7 +28,7 @@ public class InvoiceService {
 
     private boolean addItemsToInvoice(InvoiceItem item, Invoice invoice) {
         boolean isSPI = item.getProduct().getTotalPrice().compareTo(Invoice.MAX_AMOUNT) > 0;
-        if (isSPI && invoice.getProducts().size() == 0) {
+        if (isSPI && invoice.getProducts().isEmpty()) {
             boolean isAdded = invoice.addSingleProduct(new InvoiceItem(item.getProduct(), 1));
             item.setQuantity(item.getQuantity() - 1);
 

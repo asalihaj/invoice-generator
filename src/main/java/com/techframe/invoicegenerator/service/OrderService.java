@@ -5,7 +5,10 @@ import com.techframe.invoicegenerator.entity.InvoiceItem;
 import com.techframe.invoicegenerator.entity.Order;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class OrderService {
@@ -17,7 +20,11 @@ public class OrderService {
 
     public Order createOrder(List<InvoiceItem> items) {
         List<Invoice> invoiceList = new ArrayList<>();
-        items.sort(Comparator.comparing(item -> item.getProduct().getTotalPrice()));
+        items.sort(Comparator.comparing(item ->
+                item.getProduct().getTotalPrice()
+                        .divide(new BigDecimal(item.getQuantity()), 6, RoundingMode.HALF_DOWN))
+        );
+        Collections.reverse(items);
 
         int totalQuantity = cumulativeQuantity(items);
         int unchangedIterations = 0;

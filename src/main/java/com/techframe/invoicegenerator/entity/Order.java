@@ -3,6 +3,7 @@ package com.techframe.invoicegenerator.entity;
 import com.techframe.invoicegenerator.util.IdGenerator;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
