@@ -19,11 +19,7 @@ public class OrderService {
 
     public Order createOrder(List<InvoiceItem> items) {
         List<Invoice> invoiceList = new ArrayList<>();
-        items.sort(Comparator.comparing(item ->
-                item.getProduct().getTotalPrice()
-                        .divide(new BigDecimal(item.getQuantity()), 6, RoundingMode.HALF_DOWN))
-        );
-        Collections.reverse(items);
+        sortByRatio(items);
 
         int totalQuantity = cumulativeQuantity(items);
         int unchangedIterations = 0;
@@ -47,6 +43,14 @@ public class OrderService {
         }
 
         return new Order(invoiceList);
+    }
+
+    private void sortByRatio(List<InvoiceItem> items) {
+        items.sort(Comparator.comparing(item ->
+                item.getProduct().getTotalPrice()
+                        .divide(new BigDecimal(item.getQuantity()), 6, RoundingMode.HALF_DOWN))
+        );
+        Collections.reverse(items);
     }
 
     private int cumulativeQuantity(List<InvoiceItem> items) {
