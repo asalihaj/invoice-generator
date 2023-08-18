@@ -20,14 +20,14 @@ public class Invoice {
     private static int counter = 1;
 
     public Invoice() {
-        this(new ArrayList<>(), new BigDecimal(0), new BigDecimal(0));
+        this(new ArrayList<>());
     }
 
-    public Invoice(List<InvoiceItem> products, BigDecimal subTotal, BigDecimal totalAmount) {
+    public Invoice(List<InvoiceItem> products) {
         this.id = IdGenerator.generateId(PREFIX, ID_LENGTH, counter++);
         this.products = products;
-        this.subTotal = subTotal;
-        this.totalAmount = totalAmount;
+        this.subTotal = calculateSubTotal();
+        this.totalAmount = calculateTotalAmount();
     }
 
     public boolean addProduct(InvoiceItem item) {
