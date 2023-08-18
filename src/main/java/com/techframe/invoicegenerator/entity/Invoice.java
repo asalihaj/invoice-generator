@@ -41,10 +41,8 @@ public class Invoice {
                 item.setQuantity(totalQuantity);
                 products.set(index, item);
             }
-            totalAmount = calculateTotalAmount();
-            subTotal = calculateSubTotal();
-            vat = totalAmount.subtract(subTotal);
 
+            updateInvoiceTotals();
             return true;
         }
 
@@ -56,13 +54,16 @@ public class Invoice {
             return false;
         }
         item.setQuantity(1);
-
         products.add(item);
+
+        updateInvoiceTotals();
+        return true;
+    }
+
+    private void updateInvoiceTotals() {
         totalAmount = calculateTotalAmount();
         subTotal = calculateSubTotal();
         vat = totalAmount.subtract(subTotal);
-
-        return true;
     }
 
     public boolean canAddProduct(InvoiceItem item) {

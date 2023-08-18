@@ -21,7 +21,7 @@ public class InvoiceService {
                 continue;
             }
 
-            boolean isAdded = addItemsToInvoice(item, invoice);
+            boolean isAdded = addItemToInvoice(item, invoice);
             if (!isAdded) {
                 break;
             }
@@ -30,11 +30,16 @@ public class InvoiceService {
         return invoice;
     }
 
-    private boolean addItemsToInvoice(InvoiceItem item, Invoice invoice) {
+    private boolean addItemToInvoice(InvoiceItem item, Invoice invoice) {
         boolean isSPI = item.getProduct().getTotalPrice().compareTo(Invoice.MAX_AMOUNT) > 0;
-        if (isSPI && invoice.getProducts().size() == 0) {
-            boolean isAdded = invoice.addSingleProduct(new InvoiceItem(item.getProduct(), 1));
-            item.setQuantity(item.getQuantity() - 1);
+        boolean isAdded;
+
+        if (isSPI && invoice.getProducts().isEmpty()) {
+            isAdded = invoice.addSingleProduct(new InvoiceItem(item.getProduct(), 1));
+
+            if (isAdded) {
+                item.setQuantity(item.getQuantity() - 1);
+            }
 
             return isAdded;
         }
@@ -48,8 +53,10 @@ public class InvoiceService {
             return false;
         }
 
-        boolean isAdded = invoice.addProduct(new InvoiceItem(item.getProduct(), maxQuantity));
-        item.setQuantity(item.getQuantity() - maxQuantity);
+        isAdded = invoice.addProduct(new InvoiceItem(item.getProduct(), maxQuantity));
+        if (isAdded) {
+            item.setQuantity(item.getQuantity() - maxQuantity);
+        }
 
         return isAdded;
     }

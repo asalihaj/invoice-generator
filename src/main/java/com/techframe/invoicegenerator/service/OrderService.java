@@ -21,7 +21,7 @@ public class OrderService {
 
         int totalQuantity = cumulativeQuantity(items);
         int unchangedIterations = 0;
-        int maxTries = 5;
+        int maxTries = 2;
 
         while (totalQuantity > 0) {
             Invoice invoice = invoiceService.createInvoice(items);
@@ -32,7 +32,7 @@ public class OrderService {
                 unchangedIterations = 0;
             } else {
                 unchangedIterations++;
-                if (unchangedIterations >= maxTries) {
+                if (unchangedIterations > maxTries) {
                     throw new RuntimeException("Error while creating order");
                 }
             }
