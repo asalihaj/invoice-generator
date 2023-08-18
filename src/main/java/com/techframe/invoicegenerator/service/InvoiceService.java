@@ -49,7 +49,9 @@ public class InvoiceService {
         }
 
         boolean isAdded = invoice.addProduct(new InvoiceItem(item.getProduct(), maxQuantity));
-        item.setQuantity(item.getQuantity() - maxQuantity);
+        if (isAdded) {
+            item.setQuantity(item.getQuantity() - maxQuantity);
+        }
 
         return isAdded;
     }
@@ -57,7 +59,7 @@ public class InvoiceService {
     private int calculateMaxQuantity(BigDecimal productPrice, int quantity, BigDecimal limit) {
         int maxQuantityByProducts = Math.min(
                 Invoice.PRODUCT_LIMIT,
-                limit.divide(productPrice, RoundingMode.HALF_DOWN).intValue()
+                limit.divide(productPrice, RoundingMode.FLOOR).intValue()
         );
         return Math.min(maxQuantityByProducts, quantity);
     }
