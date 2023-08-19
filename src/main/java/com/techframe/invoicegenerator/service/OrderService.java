@@ -1,5 +1,6 @@
 package com.techframe.invoicegenerator.service;
 
+import com.techframe.invoicegenerator.dto.ViewOrderDto;
 import com.techframe.invoicegenerator.entity.Invoice;
 import com.techframe.invoicegenerator.entity.InvoiceItem;
 import com.techframe.invoicegenerator.entity.Order;
@@ -8,9 +9,11 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class OrderService {
+    private List<Order> orders = new ArrayList<>();
     private final InvoiceService invoiceService;
 
     public OrderService(InvoiceService invoiceService) {
@@ -42,7 +45,10 @@ public class OrderService {
             invoiceList.add(invoice);
         }
 
-        return new Order(invoiceList);
+        Order order = new Order(invoiceList);
+        orders.add(order);
+
+        return order;
     }
 
     private void sortByRatio(List<InvoiceItem> items) {
@@ -55,5 +61,21 @@ public class OrderService {
 
     private int cumulativeQuantity(List<InvoiceItem> items) {
         return items.stream().map(InvoiceItem::getQuantity).reduce(0, Integer::sum);
+    }
+
+    public List<ViewOrderDto> list() {
+        List<ViewOrderDto> viewOrderDtos = orders.stream().map(o -> new ViewOrderDto(
+                o.getId(),
+                o.getSubTotal(),
+                o.getTotal(),
+                o.getVat(),
+                o.getInvoices().size()
+        )).toList();
+
+        return viewOrderDtos;
+    }
+
+    public Order getOrderDetails(String id) {
+        return orders.stream().filter(o -> o.getId().equals(id)).findFirst().orElse(null);
     }
 }
