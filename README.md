@@ -5,7 +5,7 @@ quantities and generates an order that includes a series of
 invoices, each containing details about the products and their 
 quantities.
 
-* Endpoint: /api/v1/orders
+* Endpoint: `/api/v1/orders`
 * Method: POST
 * Request Body ([example](src/main/resources/data.json))
 ```json
@@ -117,4 +117,74 @@ quantities.
   "vat": 37.9062,
   "total": 488.0562
 }
+```
+
+### Get All Orders
+Retrieves a list of all orders.
+
+* Endpoint: `/api/v1/orders`
+* Method: POST
+* Response (example):
+```json
+[
+  {
+    "id": "ORD01",
+    "totalAmount": 118,
+    "subTotal": 100,
+    "vat": 18,
+    "numberOfInvoices": 2
+  },
+  {
+    // ... (order details)
+  }
+]
+
+```
+
+### Get Order Details
+Retrieves detailed information about a specific order.
+
+* Endpoint: `/api/v1/orders/{id}/details`
+* Method: POST
+* Response (example):
+```json
+{
+    "id": "ORD02",
+    "invoices": [
+        {
+            "id": "INV021",
+            "products": [
+                {
+                    "product": {
+                        "name": "Product C",
+                        "price": 700.00,
+                        "discount": 0,
+                        "vat": 15.00,
+                        "totalPrice": 805.000,
+                        "discountPrice": 700.00
+                    },
+                    "quantity": 1,
+                    "subTotal": 700.00,
+                    "vat": 105.0000
+                }
+            ],
+            "subTotal": 700.00,
+            "totalAmount": 805.00,
+            "vat": 105.00
+        }
+    ],
+    "subTotal": 700.00,
+    "vat": 805.00,
+    "total": 105.00
+}
+```
+
+### Delete Order
+Deletes a specific order by its ID.
+
+* Endpoint: `/api/v1/orders/{id}`
+* Method: POST
+* Response:
+```
+Order deleted successfully
 ```
