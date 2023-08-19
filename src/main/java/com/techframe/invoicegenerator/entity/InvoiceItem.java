@@ -6,14 +6,15 @@ import java.math.RoundingMode;
 public class InvoiceItem {
     private Product product;
     private Integer quantity;
-    private BigDecimal total;
+    private BigDecimal subTotal; // does not include VAT
     private BigDecimal vat;
 
     public InvoiceItem(Product product, Integer quantity) {
         this.product = product;
         this.quantity = quantity;
-        total = product.getDiscountPrice().multiply(new BigDecimal(quantity));
-        vat = total.multiply(product.getVat().divide(new BigDecimal(100), RoundingMode.HALF_DOWN));
+        subTotal = product.getDiscountPrice().multiply(new BigDecimal(quantity));
+        vat = subTotal.multiply(product.getVat().divide(new BigDecimal(100), 4, RoundingMode.HALF_DOWN))
+                .setScale(4, RoundingMode.HALF_DOWN);
     }
 
     public Product getProduct() {
@@ -24,12 +25,12 @@ public class InvoiceItem {
         this.product = product;
     }
 
-    public BigDecimal getTotal() {
-        return total;
+    public BigDecimal getSubTotal() {
+        return subTotal;
     }
 
-    public void setTotal(BigDecimal total) {
-        this.total = total;
+    public void setSubTotal(BigDecimal subTotal) {
+        this.subTotal = subTotal;
     }
 
     public BigDecimal getVat() {

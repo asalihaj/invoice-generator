@@ -3,6 +3,7 @@ package com.techframe.invoicegenerator.entity;
 import com.techframe.invoicegenerator.util.IdGenerator;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -108,7 +109,7 @@ public class Invoice {
 
             total = total.add(productPrice.multiply(new BigDecimal(quantity)));
         }
-        return total;
+        return total.setScale(2, RoundingMode.HALF_EVEN);
     }
 
     public BigDecimal calculateSubTotal() {
@@ -119,7 +120,7 @@ public class Invoice {
 
             subTotal = subTotal.add(productPrice.multiply(new BigDecimal(quantity)));
         }
-        return subTotal;
+        return subTotal.setScale(2, RoundingMode.HALF_EVEN);
     }
 
     public BigDecimal getTotalAmount() {

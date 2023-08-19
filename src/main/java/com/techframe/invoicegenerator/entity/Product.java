@@ -24,8 +24,11 @@ public class Product {
 
     public BigDecimal getTotalPrice() {
         BigDecimal discountedPrice = price.subtract(discount);
-        BigDecimal vatAmount = discountedPrice.multiply(vat.divide(new BigDecimal(100), RoundingMode.DOWN));
-        return discountedPrice.add(vatAmount);
+        return discountedPrice.add(
+                discountedPrice
+                        .multiply(vat.divide(new BigDecimal(100), 4, RoundingMode.DOWN))
+                        .setScale(3, RoundingMode.HALF_DOWN)
+        );
     }
 
     public BigDecimal getDiscountPrice() {
