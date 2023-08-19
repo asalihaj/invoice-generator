@@ -6,7 +6,7 @@ invoices, each containing details about the products and their
 quantities.
 
 * Endpoint: `/api/v1/orders`
-* Method: POST
+* Method: `POST`
 * Request Body ([example](src/main/resources/data.json))
 ```json
 [
@@ -123,7 +123,7 @@ quantities.
 Retrieves a list of all orders.
 
 * Endpoint: `/api/v1/orders`
-* Method: POST
+* Method: `GET`
 * Response (example):
 ```json
 [
@@ -145,7 +145,7 @@ Retrieves a list of all orders.
 Retrieves detailed information about a specific order.
 
 * Endpoint: `/api/v1/orders/{id}/details`
-* Method: POST
+* Method: `GET`
 * Response (example):
 ```json
 {
@@ -183,7 +183,7 @@ Retrieves detailed information about a specific order.
 Deletes a specific order by its ID.
 
 * Endpoint: `/api/v1/orders/{id}`
-* Method: POST
+* Method: `DELETE`
 * Response:
 ```
 Order deleted successfully
