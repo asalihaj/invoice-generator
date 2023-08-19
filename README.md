@@ -133,9 +133,6 @@ Retrieves a list of all orders.
     "subTotal": 100,
     "vat": 18,
     "numberOfInvoices": 2
-  },
-  {
-    // ... (order details)
   }
 ]
 
