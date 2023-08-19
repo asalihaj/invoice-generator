@@ -5,7 +5,6 @@ import com.techframe.invoicegenerator.entity.Invoice;
 import com.techframe.invoicegenerator.entity.InvoiceItem;
 import com.techframe.invoicegenerator.entity.Order;
 import com.techframe.invoicegenerator.repository.OrderRepository;
-import com.techframe.invoicegenerator.util.IdGenerator;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -57,15 +56,13 @@ public class OrderService {
     public List<ViewOrderDto> list() {
         List<Order> orders = orderRepository.getAllOrders();
 
-        List<ViewOrderDto> orderDtos = orders.stream().map(o -> new ViewOrderDto(
+        return orders.stream().map(o -> new ViewOrderDto(
                 o.getId(),
                 o.getSubTotal(),
                 o.getTotal(),
                 o.getVat(),
                 o.getInvoices().size()
         )).collect(Collectors.toList());
-
-        return orderDtos;
     }
 
     public Order getOrderDetails(String id) {

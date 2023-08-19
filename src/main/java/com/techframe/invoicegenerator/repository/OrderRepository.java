@@ -8,11 +8,11 @@ import java.util.List;
 
 @Repository
 public class OrderRepository {
-    private List<Order> orders = new ArrayList<>();
+    private final List<Order> orders = new ArrayList<>();
 
     public void createOrder(Order order) {
         orders.add(order);
-    };
+    }
 
     public List<Order> getAllOrders() {
         return orders;
