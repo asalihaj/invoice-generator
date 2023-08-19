@@ -16,4 +16,44 @@ public class ViewOrderDto {
         this.vat = vat;
         this.numberOfInvoices = numberOfInvoices;
     }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public BigDecimal getSubTotal() {
+        return subTotal;
+    }
+
+    public void setSubTotal(BigDecimal subTotal) {
+        this.subTotal = subTotal;
+    }
+
+    public BigDecimal getTotalAmount() {
+        return totalAmount;
+    }
+
+    public void setTotalAmount(BigDecimal totalAmount) {
+        this.totalAmount = totalAmount;
+    }
+
+    public BigDecimal getVat() {
+        return vat;
+    }
+
+    public void setVat(BigDecimal vat) {
+        this.vat = vat;
+    }
+
+    public int getNumberOfInvoices() {
+        return numberOfInvoices;
+    }
+
+    public void setNumberOfInvoices(int numberOfInvoices) {
+        this.numberOfInvoices = numberOfInvoices;
+    }
 }
