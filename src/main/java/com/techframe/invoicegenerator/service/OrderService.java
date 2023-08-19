@@ -4,6 +4,8 @@ import com.techframe.invoicegenerator.dto.ViewOrderDto;
 import com.techframe.invoicegenerator.entity.Invoice;
 import com.techframe.invoicegenerator.entity.InvoiceItem;
 import com.techframe.invoicegenerator.entity.Order;
+import com.techframe.invoicegenerator.repository.OrderRepository;
+import com.techframe.invoicegenerator.util.IdGenerator;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -13,11 +15,12 @@ import java.util.stream.Collectors;
 
 @Service
 public class OrderService {
-    private List<Order> orders = new ArrayList<>();
+    private final OrderRepository orderRepository;
     private final InvoiceService invoiceService;
 
-    public OrderService(InvoiceService invoiceService) {
+    public OrderService(InvoiceService invoiceService, OrderRepository orderRepository) {
         this.invoiceService = invoiceService;
+        this.orderRepository = orderRepository;
     }
 
     public Order createOrder(List<InvoiceItem> items) {
@@ -46,9 +49,31 @@ public class OrderService {
         }
 
         Order order = new Order(invoiceList);
-        orders.add(order);
+        orderRepository.createOrder(order);
 
         return order;
+    }
+
+    public List<ViewOrderDto> list() {
+        List<Order> orders = orderRepository.getAllOrders();
+
+        List<ViewOrderDto> orderDtos = orders.stream().map(o -> new ViewOrderDto(
+                o.getId(),
+                o.getSubTotal(),
+                o.getTotal(),
+                o.getVat(),
+                o.getInvoices().size()
+        )).collect(Collectors.toList());
+
+        return orderDtos;
+    }
+
+    public Order getOrderDetails(String id) {
+        return orderRepository.getOrderDetails(id);
+    }
+
+    public void deleteById(String id) {
+        orderRepository.deleteOrder(id);
     }
 
     private void sortByRatio(List<InvoiceItem> items) {
@@ -61,21 +86,5 @@ public class OrderService {
 
     private int cumulativeQuantity(List<InvoiceItem> items) {
         return items.stream().map(InvoiceItem::getQuantity).reduce(0, Integer::sum);
-    }
-
-    public List<ViewOrderDto> list() {
-        List<ViewOrderDto> viewOrderDtos = orders.stream().map(o -> new ViewOrderDto(
-                o.getId(),
-                o.getSubTotal(),
-                o.getTotal(),
-                o.getVat(),
-                o.getInvoices().size()
-        )).toList();
-
-        return viewOrderDtos;
-    }
-
-    public Order getOrderDetails(String id) {
-        return orders.stream().filter(o -> o.getId().equals(id)).findFirst().orElse(null);
     }
 }
