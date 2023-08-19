@@ -27,19 +27,36 @@ public class InvoiceService {
     }
 
     private boolean addItemsToInvoice(InvoiceItem item, Invoice invoice) {
-        boolean isSPI = item.getProduct().getTotalPrice().compareTo(Invoice.MAX_AMOUNT) > 0;
-        if (isSPI && invoice.getProducts().isEmpty()) {
-            boolean isAdded = invoice.addSingleProduct(new InvoiceItem(item.getProduct(), 1));
-            item.setQuantity(item.getQuantity() - 1);
+        boolean isSPI = isSingleProductInvoice(item, invoice);
 
-            return isAdded;
+        if (isSPI) {
+            return addSingleProductToInvoice(item, invoice);
+        } else {
+            return addProductToInvoice(item, invoice);
         }
+    }
 
+    // Evaluates if the product value is greater than the limit of the invoice and if the invoice is empty
+    private boolean isSingleProductInvoice(InvoiceItem item, Invoice invoice) {
+        BigDecimal productTotalPrice = item.getProduct().getTotalPrice();
+        return productTotalPrice.compareTo(Invoice.MAX_AMOUNT) > 0 && invoice.getProducts().isEmpty();
+    }
+
+    private boolean addSingleProductToInvoice(InvoiceItem item, Invoice invoice) {
+        boolean isAdded = invoice.addSingleProduct(new InvoiceItem(item.getProduct(), 1));
+        if (isAdded) {
+            item.setQuantity(item.getQuantity() - 1);
+        }
+        return isAdded;
+    }
+
+    private boolean addProductToInvoice(InvoiceItem item, Invoice invoice) {
         int maxQuantity = calculateMaxQuantity(
                 item.getProduct().getTotalPrice(),
                 item.getQuantity(),
                 Invoice.MAX_AMOUNT.subtract(invoice.getTotalAmount())
         );
+
         if (maxQuantity == 0) {
             return false;
         }
@@ -48,7 +65,6 @@ public class InvoiceService {
         if (isAdded) {
             item.setQuantity(item.getQuantity() - maxQuantity);
         }
-
         return isAdded;
     }
 
